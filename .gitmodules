@@ -1,0 +1,6 @@
+[submodule "deps/cpp-sqlite3"]
+	path = deps/cpp-sqlite3
+	url = git@github.com:EddieBreeg/cpp-sqlite3.git
+[submodule "deps/wxWidgets"]
+	path = deps/wxWidgets
+	url = git@github.com:wxWidgets/wxWidgets.git

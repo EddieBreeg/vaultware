@@ -4,3 +4,5 @@
 [submodule "deps/wxWidgets"]
 	path = deps/wxWidgets
 	url = git@github.com:wxWidgets/wxWidgets.git
+[submodule ".\\deps\\wxWidgets\\"]
+	branch = 3.2.2-hotfix

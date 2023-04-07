@@ -1,1 +1,2 @@
 D:\uqac\OOP\vaultware\sources\x64\Debug\Vaultware.exe
+C:\Users\lucas\Desktop\vaultware\x64\Debug\Vaultware.exe

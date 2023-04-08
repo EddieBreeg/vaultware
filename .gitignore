@@ -3,3 +3,6 @@ lib/
 bin/
 !deps/botan/lib
 .vs*
+*.exe
+*.pdb
+obj/

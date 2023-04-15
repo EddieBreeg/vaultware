@@ -2,6 +2,9 @@
 #include <string>
 #include <LoginPanel.hpp>
 #include <Vault.hpp>
+#include <PasswordGenerator.hpp>
+#include <Log.h>
+#include <RNG.hpp>
 
 class Vaultware: public wxApp
 {
@@ -18,6 +21,7 @@ public:
 			_mainWin->Close();
 			return false;
 		}
+		DEBUG_LOG(generatePassword(RNG::instance(), 10, true, 2) << '\n');
 		_loginPanel = new LoginPanel(_mainWin);
 		if (_loginPanel->ShowModal() == wxID_OK) {
 			std::cout << _loginPanel->GetLogin() << std::endl;

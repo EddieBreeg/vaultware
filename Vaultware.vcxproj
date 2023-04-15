@@ -143,6 +143,7 @@
     <ClCompile Include="src\LoginPanel.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\RNG.cpp" />
+    <ClCompile Include="src\Vault.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="3rd_party\SQLite3\Blob.hpp" />

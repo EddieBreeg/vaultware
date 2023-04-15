@@ -5,18 +5,22 @@
 #include <iostream>
 #include <User.hpp>
 #include <Credential.hpp>
+#include "SQLite3/Database.hpp"
 
 class Vault{
+        SQLite3::Database _db;
     public:
-        Vault() = default;
-        ~Vault() = default;
-    private:
-        User login(std::string email, std::string password);
-        void save();
-        void export();
-        void import();
+        Vault();
+        ~Vault();
+
+        User login(const std::string& email, const std::string& password);
+        void saveVault();
+        void exportVault();
+        void importVault();
         void addCredential(Credential credential);
-        void deleteCredential(std::string name);
+        void deleteCredential(const std::string& name);
+        bool isOpen() const;
+        SQLite3::error_code getError() const;
 };
 
 #endif

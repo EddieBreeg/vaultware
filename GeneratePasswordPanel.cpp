@@ -68,14 +68,12 @@ int GeneratePasswordPanel::GetMinSpecialChars() const {
 }
 
 void GeneratePasswordPanel::OnGenerate(wxCommandEvent& event) {
-    _passwordResult->SetValue(generatePassword(RNG::instance(), GetLength(), GetAllowNumbers(), GetAllowNumbers() ? GetMinSpecialChars() : 0));
+    _passwordResult->SetValue(generatePassword(RNG::instance(), GetLength(), GetAllowNumbers(), 
+        _minSpecialCharsInput->GetValue() * _allowSpecialChars->GetValue()));
 }
 
 void GeneratePasswordPanel::OnSymbolsCheckboxChange(wxCommandEvent& event) {
-    if (event.IsChecked())
-        _minSpecialCharsInput->Enable(true);
-    else
-        _minSpecialCharsInput->Enable(false);
+    _minSpecialCharsInput->Enable(event.IsChecked());
 }
 
 void GeneratePasswordPanel::OnCopyClicked(wxCommandEvent& event) {

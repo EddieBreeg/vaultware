@@ -10,7 +10,7 @@ std::string generatePassword(PRNG& g, size_t len, bool digits, size_t minSpecial
     static constexpr char symbols[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
     "$@.?!*%";
     std::string pwd;
-    size_t start = int(!digits) * 10, end = 62 + 6 * int(minSpecials > 0);
+    size_t start = int(!digits) * 10, end = 61 + 7 * int(minSpecials > 0);
     pwd.reserve(len);
     minSpecials = minSpecials < len ? minSpecials : len;
     std::uniform_int_distribution<size_t> dist{start, end};

@@ -1,4 +1,3 @@
-#include <wx/wx.h>
 #include <LoginPanel.hpp>
 
 LoginPanel::LoginPanel(wxFrame* parent) : wxDialog(parent, wxID_ANY, "Login") {
@@ -7,9 +6,9 @@ LoginPanel::LoginPanel(wxFrame* parent) : wxDialog(parent, wxID_ANY, "Login") {
 	_passwordInput = new wxTextCtrl(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER|wxTE_PASSWORD);
 	_passwordInput->SetHint("Enter password");
 
-	wxButton* _loginButton = new wxButton(this, wxID_OK, "Login");
-	wxButton* _quitButton = new wxButton(this, wxID_CANCEL, "Quit");
-	SetDefaultItem(_loginButton);
+	wxButton* loginButton = new wxButton(this, wxID_OK, "Login");
+	wxButton* quitButton = new wxButton(this, wxID_CANCEL, "Quit");
+	SetDefaultItem(loginButton);
 
 	wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
 
@@ -17,17 +16,17 @@ LoginPanel::LoginPanel(wxFrame* parent) : wxDialog(parent, wxID_ANY, "Login") {
 	loginSizer->Add(new wxStaticText(this, wxID_ANY, "Login :"), 0, wxALL, 5);
 	loginSizer->Add(_loginInput, 1, wxEXPAND | wxALL, 5);
 
-	wxBoxSizer* mdpSizer = new wxBoxSizer(wxHORIZONTAL);
-	mdpSizer->Add(new wxStaticText(this, wxID_ANY, "Password :"), 0, wxALL, 5);
-	mdpSizer->Add(_passwordInput, 1, wxEXPAND | wxALL, 5);
+	wxBoxSizer* passwordSizer = new wxBoxSizer(wxHORIZONTAL);
+	passwordSizer->Add(new wxStaticText(this, wxID_ANY, "Password :"), 0, wxALL, 5);
+	passwordSizer->Add(_passwordInput, 1, wxEXPAND | wxALL, 5);
 
 	wxBoxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
-	buttonSizer->Add(_loginButton, 0, wxALL, 5);
-	buttonSizer->Add(_quitButton, 0, wxALL, 5);
+	buttonSizer->Add(loginButton, 0, wxALL, 5);
+	buttonSizer->Add(quitButton, 0, wxALL, 5);
 
 	mainSizer->Add(new wxStaticText(this, wxID_ANY, "Vaultware login"), 0, wxALIGN_CENTER | wxALL, 20);
 	mainSizer->Add(loginSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 20);
-	mainSizer->Add(mdpSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 20);
+	mainSizer->Add(passwordSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 20);
 	mainSizer->AddStretchSpacer();
 	mainSizer->Add(buttonSizer, 0, wxALIGN_CENTER | wxALL, 20);
 

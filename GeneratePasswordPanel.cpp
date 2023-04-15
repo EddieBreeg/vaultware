@@ -10,7 +10,7 @@ GeneratePasswordPanel::GeneratePasswordPanel(wxFrame* parent) : wxDialog(parent,
     _allowSpecialChars->Bind(wxEVT_CHECKBOX, &GeneratePasswordPanel::OnSymbolsCheckboxChange, this);
 
 	_lengthInput = new wxSpinCtrl(this, wxID_ANY, "10", wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 5, 100, 10);
-	_minSpecialCharsInput = new wxSpinCtrl(this, wxID_ANY, "1", wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 5, 100, 1);
+	_minSpecialCharsInput = new wxSpinCtrl(this, wxID_ANY, "1", wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 1, 100, 1);
 
     std::string password = generatePassword(RNG::instance(), GetLength(), GetAllowNumbers(), GetAllowNumbers() ? GetMinSpecialChars() : 0);
     _passwordResult = new wxTextCtrl(this, wxID_ANY, password);

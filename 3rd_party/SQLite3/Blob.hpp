@@ -18,7 +18,7 @@ namespace SQLite3
         constexpr Blob() noexcept = default;
         constexpr Blob(nullptr_t) noexcept;
         Blob(const uint8_t* start, const uint8_t *end) noexcept;
-        Blob(const uint8_t *start, size_t end) noexcept;
+        Blob(const uint8_t *start, size_t size) noexcept;
 
         const uint8_t& operator[](size_t i) const {return _start[i]; }
 

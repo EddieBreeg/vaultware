@@ -3,6 +3,7 @@
 #include <stdlib.h>
 
 #include "Log.h"
+#include <cassert>
 
 using std::filesystem::path;
 
@@ -29,6 +30,24 @@ static inline path vaultPath(){
 
 Vault::Vault(): _db(vaultPath().u8string())
 {
+    _db.toggleForeignKeys(true);
+    _db.execute("create table if not exists users "
+        "(id integer primary key, "
+        "email varchar unique not null, "
+        "pwd text(128) not null);");
+    _db.execute("create table if not exists credentials("
+        "id integer primary key,"
+        "name varchar unique not null,"
+        "login varchar not null,"
+        "pwd varchar not null,"
+        "url varchar,"
+        "confirmPwd int default 0,"
+        "user_id integer not null,"
+        "foreign key(user_id) references users(id));");
+    _cipher = Botan::StreamCipher::create("ChaCha(20)");
+    #if DEBUG
+    assert(_cipher);
+    #endif
 }
 Vault::~Vault() = default;
 bool Vault::isOpen() const { return _db.isOpen(); }

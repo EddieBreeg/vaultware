@@ -49,10 +49,10 @@ namespace SQLite3
         @param ec: a reference to an error_code object to store the result of the operation
         */
         Statement createStatement(std::string_view sql, error_code& ec);
-        /* Executes one or more sql statements directly. Should ONLY be used with remade sql statements.
+        /* Executes one or more sql statements directly. Should ONLY be used with premade sql statements.
         When statement parameters are required, use prepared statement (created with createStatement) instead.*/
         error_code execute(std::string_view sql);
-        /* Toggles foreign keys constraints (which DISABLED BY DEFAULT for historical compatibility purposes)
+        /* Toggles foreign keys constraints (which are DISABLED BY DEFAULT for historical compatibility purposes)
          */
         error_code toggleForeignKeys(bool onoff);
         /* Executes one or more sql statements, and calls the provided callback function for each row returned by said statements. If a statement fails to compile or to execute, the appropriate error code is returned without calling the callback. If the callback returns an error_code which is not SQLite3::OK, SQLite3::ABORT is returned immediately

@@ -1,6 +1,14 @@
 #include <wx/wx.h>
 #include <string>
 #include <LoginPanel.hpp>
+#include <SQLite3/SQLite3.hpp>
+
+#if DEBUG
+#include <iostream>
+#define DEBUG_LOG(x)	std::cout << x
+#else
+#define DEBUG_LOG(x)
+#endif
 
 class Vaultware: public wxApp
 {
@@ -9,6 +17,7 @@ class Vaultware: public wxApp
 	
 public:
 	virtual bool OnInit() override {
+		DEBUG_LOG((int)SQLite3::SQLite3Error::Retry);
 		_mainWin = new wxFrame(nullptr, wxID_ANY, "Vaultware");
 
 		_loginPanel = new LoginPanel(_mainWin);

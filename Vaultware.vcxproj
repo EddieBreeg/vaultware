@@ -108,9 +108,10 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);DEBUG=1;WinMain=main</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN;NOGDI;_DEBUG;_CONSOLE;%(PreprocessorDefinitions);DEBUG=1;WinMain=main</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir)/3rd_party;$(ProjectDir)/include;$(WXWIN)/include;$(WXWIN)/include/msvc</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -125,7 +126,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions);DEBUG=0</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN;NOGDI;NDEBUG;_CONSOLE;%(PreprocessorDefinitions);DEBUG=0</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir)/3rd_party;$(ProjectDir)/include;$(WXWIN)/include;$(WXWIN)/include/msvc</AdditionalIncludeDirectories>
     </ClCompile>
@@ -141,6 +142,19 @@
   <ItemGroup>
     <ClCompile Include="src\LoginPanel.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\RNG.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="3rd_party\SQLite3\Blob.hpp" />
+    <ClInclude Include="3rd_party\SQLite3\Database.hpp" />
+    <ClInclude Include="3rd_party\SQLite3\error_code.hpp" />
+    <ClInclude Include="3rd_party\SQLite3\SQLite3.hpp" />
+    <ClInclude Include="3rd_party\SQLite3\Statement.hpp" />
+    <ClInclude Include="include\Credential.hpp" />
+    <ClInclude Include="include\PasswordGenerator.hpp" />
+    <ClInclude Include="include\RNG.hpp" />
+    <ClInclude Include="include\User.hpp" />
+    <ClInclude Include="include\Vault.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\LoginPanel.hpp" />

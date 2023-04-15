@@ -2,6 +2,7 @@
 
 #include <wx/wx.h>
 #include <wx/spinctrl.h>
+#include <wx/clipbrd.h>
 
 class GeneratePasswordPanel : public wxDialog
 {
@@ -12,7 +13,6 @@ public:
 	bool GetAllowNumbers() const;
 	bool GetAllowSpecialChars() const;
 	int GetMinSpecialChars() const;
-	void SetGeneratedPassword(std::string);
 private:
 	wxSpinCtrl* _lengthInput;
 	wxSpinCtrl* _minSpecialCharsInput;
@@ -20,5 +20,7 @@ private:
 	wxCheckBox* _allowSpecialChars;
 	wxTextCtrl* _passwordResult;
 
+	void OnGenerate(wxCommandEvent& event);
 	void OnSymbolsCheckboxChange(wxCommandEvent& event);
+	void OnCopyClicked(wxCommandEvent& event);
 };

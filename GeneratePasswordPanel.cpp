@@ -1,4 +1,6 @@
 #include <GeneratePasswordPanel.hpp>
+#include <RNG.hpp>
+#include <PasswordGenerator.hpp>
 
 GeneratePasswordPanel::GeneratePasswordPanel(wxFrame* parent) : wxDialog(parent, wxID_ANY, "Password generator") {
     _allowNumbers = new wxCheckBox(this, wxID_ANY, "0-9", wxDefaultPosition, wxDefaultSize, 0);
@@ -8,11 +10,17 @@ GeneratePasswordPanel::GeneratePasswordPanel(wxFrame* parent) : wxDialog(parent,
     _allowSpecialChars->Bind(wxEVT_CHECKBOX, &GeneratePasswordPanel::OnSymbolsCheckboxChange, this);
 
 	_lengthInput = new wxSpinCtrl(this, wxID_ANY, "10", wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 5, 100, 10);
-	_minSpecialCharsInput = new wxSpinCtrl(this, wxID_ANY, "5", wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 5, 100, 5);
+	_minSpecialCharsInput = new wxSpinCtrl(this, wxID_ANY, "1", wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 5, 100, 1);
 
-    _passwordResult = new wxTextCtrl(this, wxID_ANY, "blablabla", wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
+    std::string password = generatePassword(RNG::instance(), GetLength(), GetAllowNumbers(), GetAllowNumbers() ? GetMinSpecialChars() : 0);
+    _passwordResult = new wxTextCtrl(this, wxID_ANY, password);
+    _passwordResult->Disable();
+
+    wxButton* copyButton = new wxButton(this, wxID_ANY, "Copy to clipboard");
+    copyButton->Bind(wxEVT_BUTTON, &GeneratePasswordPanel::OnCopyClicked, this);
 
 	wxButton* generateButton = new wxButton(this, wxID_OK, "Generate");
+    generateButton->Bind(wxEVT_BUTTON, &GeneratePasswordPanel::OnGenerate, this);
 	wxButton* quitButton = new wxButton(this, wxID_CANCEL, "Quit");
 	SetDefaultItem(generateButton);
 
@@ -34,6 +42,7 @@ GeneratePasswordPanel::GeneratePasswordPanel(wxFrame* parent) : wxDialog(parent,
 
     mainSizer->Add(new wxStaticText(this, wxID_ANY, "Generated password :"), 0, wxLEFT, 5);
     mainSizer->Add(_passwordResult, 0, wxALL | wxEXPAND, 5);
+    mainSizer->Add(copyButton, 0, wxTE_CENTER, 5);
 
     mainSizer->Add(buttonSizer, 0, wxALIGN_CENTER_HORIZONTAL | wxBOTTOM, 20);
 
@@ -54,13 +63,12 @@ bool GeneratePasswordPanel::GetAllowSpecialChars() const {
     return _allowSpecialChars->GetValue();
 }
 
-
 int GeneratePasswordPanel::GetMinSpecialChars() const {
 	return _minSpecialCharsInput->GetValue();
 }
 
-void GeneratePasswordPanel::SetGeneratedPassword(std::string password) {
-    _passwordResult->SetValue(password);
+void GeneratePasswordPanel::OnGenerate(wxCommandEvent& event) {
+    _passwordResult->SetValue(generatePassword(RNG::instance(), GetLength(), GetAllowNumbers(), GetAllowNumbers() ? GetMinSpecialChars() : 0));
 }
 
 void GeneratePasswordPanel::OnSymbolsCheckboxChange(wxCommandEvent& event) {
@@ -68,4 +76,14 @@ void GeneratePasswordPanel::OnSymbolsCheckboxChange(wxCommandEvent& event) {
         _minSpecialCharsInput->Enable(true);
     else
         _minSpecialCharsInput->Enable(false);
+}
+
+void GeneratePasswordPanel::OnCopyClicked(wxCommandEvent& event) {
+    wxString password = _passwordResult->GetValue();
+    if (!password.IsEmpty()) {
+        if (wxTheClipboard->Open()) {
+            wxTheClipboard->SetData(new wxTextDataObject(password));
+            wxTheClipboard->Close();
+        }
+    }
 }

@@ -21,9 +21,15 @@
     <ClCompile Include="src\LoginPanel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="GeneratePasswordPanel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\LoginPanel.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\GeneratePasswordPanel.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

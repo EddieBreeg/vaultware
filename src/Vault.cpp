@@ -63,6 +63,32 @@ bool Vault::login(const std::string& email, const std::string& password){
 
     return true;
 }
+void Vault::updateCredential(size_t index, const Credential& c){
+    if(index >= _contents.size()) return;
+    // find the keystream position
+    size_t pos = 0;
+    for(size_t i = 0; i < index; ++i)
+        pos += _contents[i].size();
+    _cipher->seek(pos);
+    _contents[index] = c; // update the credential
+    Credential enc = c.ciphered(_cipher);
+    _cipher->seek(_pos); // reset the keystream positon to the last one
+    SQLite3::error_code ec;
+    auto stmt = _db.createStatement("update credentials"
+    "set name=?, login=?, pwd=?, confirmPwd=?, url=? where id=?", ec);
+    #if DEBUG
+    if(ec){
+        DEBUG_LOG(ec.what() << '\n');
+        return;
+    }
+    #endif
+    stmt.bindParams(enc.getName(), enc.getLogin(), enc.getPassword(), enc.getConfirmPassword(),
+        enc.getUrl(), enc.getId());
+    stmt(ec);
+    if(ec != SQLite3::SQLite3Error::Done){
+        DEBUG_LOG(ec.what() << '\n');
+    }
+}
 void Vault::saveVault(){
     _cipher->seek(0);
     SQLite3::error_code ec;

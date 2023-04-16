@@ -48,6 +48,7 @@ class Vault{
 
         void addCredential(Credential&& credential);
         void deleteCredential(size_t index);
+        void updateCredential(size_t index, const Credential& cred);
         bool isOpen() const;
         SQLite3::error_code getError() const;
 };

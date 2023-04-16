@@ -38,7 +38,7 @@ class Vault{
         ~Vault();
         iterator begin() { return iterator{_contents.data()}; }
         iterator end() { return begin() + _contents.size(); }
-        User login(const std::string& email, const std::string& password);
+        bool login(const std::string& email, const std::string& password);
         void saveVault();
         void exportVault();
         void importVault();

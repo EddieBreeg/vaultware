@@ -43,6 +43,7 @@ namespace SQLite3
         @throws Throws an instance of SQLite3::error_code on failure
         @return On success, returns the newly created sql statement 
         */
+       [[nodiscard]]
         Statement createStatement(std::string_view sql);
         /* Creates a sql statement from some sql code, and stores the call result in ec 
         @param sql: the source code to compile

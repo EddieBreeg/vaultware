@@ -141,6 +141,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="GeneratePasswordPanel.cpp" />
+    <ClCompile Include="src\Credential.cpp" />
     <ClCompile Include="src\LoginPanel.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\RNG.cpp" />
@@ -153,6 +154,7 @@
     <ClInclude Include="3rd_party\SQLite3\SQLite3.hpp" />
     <ClInclude Include="3rd_party\SQLite3\Statement.hpp" />
     <ClInclude Include="include\Credential.hpp" />
+    <ClInclude Include="include\Log.h" />
     <ClInclude Include="include\PasswordGenerator.hpp" />
     <ClInclude Include="include\RNG.hpp" />
     <ClInclude Include="include\User.hpp" />

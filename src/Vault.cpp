@@ -95,13 +95,9 @@ void Vault::loadVault(int userId) {
     _cipher->seek(0);
     auto res = stmt(ec);
     for(; ec == SQLite3::SQLite3Error::Row; res = stmt(ec)){
-        Credential c(res.at<int>(0),
-            res.at<std::string_view>(1),
-            res.at<std::string_view>(2),
-            res.at<std::string_view>(3),
-            res.at<std::string_view>(4),
-            res.at<int>(5));
-        _contents.emplace_back(c.ciphered(_cipher));
+        _contents.emplace_back(
+            std::move(Credential(res).cipher(_cipher))
+        );
     }
     if(ec != SQLite3::SQLite3Error::Done){
         DEBUG_LOG("Couldn't load vault: " << ec.what() << '\n');

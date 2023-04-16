@@ -3,6 +3,7 @@
 #include <wx/wx.h>
 #include <wx/grid.h>
 #include <Vault.hpp>
+#include <wx/clipbrd.h>
 
 class CredentialsGrid
 {

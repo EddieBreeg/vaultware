@@ -33,10 +33,10 @@ LoginPanel::LoginPanel(wxFrame* parent) : wxDialog(parent, wxID_ANY, "Login") {
 	SetSizerAndFit(mainSizer);
 }
 
-wxString LoginPanel::GetLogin() const {
-	return _loginInput->GetValue();
+std::string LoginPanel::GetLogin() const {
+	return _loginInput->GetValue().ToStdString();
 }
 
-wxString LoginPanel::GetPassword() const {
-	return _passwordInput->GetValue();
+std::string LoginPanel::GetPassword() const {
+	return _passwordInput->GetValue().ToStdString();
 }

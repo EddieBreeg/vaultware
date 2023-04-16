@@ -17,19 +17,20 @@ class Vaultware: public wxApp
 public:
 	virtual bool OnInit() override {
 		_mainWin = new wxFrame(nullptr, wxID_ANY, "Vaultware", wxDefaultPosition, wxSize(420, 300));
-		_grid = new CredentialsGrid(_mainWin);
+		_grid = new CredentialsGrid(_mainWin, &_vault);
 
 		_mainWin->Show();
 		_loginPanel = new LoginPanel(_mainWin);
-		if (_loginPanel->ShowModal() == wxID_OK) {
-			std::cout << _loginPanel->GetLogin() << std::endl;
-			std::cout << _loginPanel->GetPassword() << std::endl;
+		/*if (_loginPanel->ShowModal() == wxID_OK) {
+			if (_vault.login(_loginPanel->GetLogin(), _loginPanel->GetPassword()))
+				_loginPanel->Destroy();
+			else
+				_mainWin->Close();
 		}
 		else {
 			_mainWin->Close();
-		}
+		}*/
 
-		_loginPanel->Destroy();
 		if(!_vault.isOpen()){
 			wxMessageBox(_vault.getError().what(), wxMessageBoxCaptionStr, 
 				wxICON_ERROR);

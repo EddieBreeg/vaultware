@@ -2,17 +2,28 @@
 
 Credential Credential::ciphered(std::unique_ptr<Botan::StreamCipher>& cipher) const {
     Credential c = *this;
-    cipher->cipher1((uint8_t*)c._name.data(), c._name.size());
-    cipher->cipher1((uint8_t*)c._login.data(), c._login.size());
-    cipher->cipher1((uint8_t*)c._password.data(), c._password.size());
-    cipher->cipher1((uint8_t*)c._url.data(), c._url.size());
-    cipher->cipher1((uint8_t*)&c._confirmPassword, sizeof(_confirmPassword));
-    return c;
+    return c.cipher(cipher);
+}
+Credential& Credential::cipher(std::unique_ptr<Botan::StreamCipher>& cipher){
+    cipher->cipher1((uint8_t*)_name.data(), _name.size());
+    cipher->cipher1((uint8_t*)_login.data(), _login.size());
+    cipher->cipher1((uint8_t*)_password.data(), _password.size());
+    cipher->cipher1((uint8_t*)_url.data(), _url.size());
+    cipher->cipher1((uint8_t*)&_confirmPassword, sizeof(_confirmPassword));
+    return *this;
 }
 Credential::Credential(int id, std::string_view name, 
     std::string_view login, std::string_view pwd, std::string_view url,
     bool confirmPassword): _id(id), _name(name), _login(login),
     _password(pwd), _url(url), _confirmPassword(confirmPassword)
+{}
+Credential::Credential(SQLite3::QueryResult res):
+    _id(res.at<int>(0)), 
+    _name(res.at<std::string_view>(1)),
+    _login(res.at<std::string_view>(2)),
+    _password(res.at<std::string_view>(3)),
+    _url(res.at<std::string_view>(4)),
+    _confirmPassword(res.at<int>(5))
 {}
 Credential::Credential() = default; 
 

@@ -49,6 +49,7 @@ namespace SQLite3
         @param sql: the source code to compile
         @param ec: a reference to an error_code object to store the result of the operation
         */
+       [[nodiscard]]
         Statement createStatement(std::string_view sql, error_code& ec);
         /* Executes one or more sql statements directly. Should ONLY be used with premade sql statements.
         When statement parameters are required, use prepared statement (created with createStatement) instead.*/

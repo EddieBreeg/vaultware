@@ -143,6 +143,7 @@
     <ClCompile Include="src\AddCredentialPanel.cpp" />
     <ClCompile Include="src\CredentialsGrid.cpp" />
     <ClCompile Include="src\GeneratePasswordPanel.cpp" />
+    <ClCompile Include="src\Credential.cpp" />
     <ClCompile Include="src\LoginPanel.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\RNG.cpp" />
@@ -157,6 +158,7 @@
     <ClInclude Include="include\AddCredentialPanel.hpp" />
     <ClInclude Include="include\CredentialsGrid.hpp" />
     <ClInclude Include="include\Credential.hpp" />
+    <ClInclude Include="include\Log.h" />
     <ClInclude Include="include\PasswordGenerator.hpp" />
     <ClInclude Include="include\RNG.hpp" />
     <ClInclude Include="include\User.hpp" />

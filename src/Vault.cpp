@@ -7,6 +7,7 @@
 #include <botan/pwdhash.h>
 #include <botan/argon2.h>
 #include <botan/system_rng.h>
+#include <string_view>
 
 using std::filesystem::path;
 
@@ -40,14 +41,17 @@ bool Vault::login(const std::string& email, const std::string& password){
     pbkdf->derive_key(k, sizeof(k), (const char*)buf.data(), buf.size(), nullptr, 0);
     buf.resize(sizeof(k) + password.size());
     std::copy(std::begin(k), std::end(k), it);
-    std::string h = Botan::argon2_generate_pwhash((const char*)buf.data(),
-        buf.size(), Botan::system_rng(), 1, 1<<20, 1);
-    auto stmt = _db.createStatement("select * from users where email=? and authHash=?");
+
+    auto& rng = Botan::system_rng();
+    auto stmt = _db.createStatement("select * from users where email=?");
     SQLite3::error_code ec;
-    stmt.bindParams(email, h);
-    auto res = stmt();
+    stmt.bindParams(email);
+    auto res = stmt(ec);
     // if user wasn't found, login failed
     if(ec == SQLite3::SQLite3Error::Done) return false;
+    std::string h(res.at<std::string_view>(2));
+    if(!Botan::argon2_check_pwhash((char*)buf.data(), buf.size(), h)) // wrong password
+        return false;
 
     _cipher->set_key(k, sizeof(k));
     SQLite3::Blob iv = res.at<SQLite3::Blob>(3);

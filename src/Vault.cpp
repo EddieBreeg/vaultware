@@ -36,10 +36,12 @@ bool Vault::login(const std::string& email, const std::string& password){
     // concatenate the password and email
     auto it = std::copy(password.begin(), password.end(), buf.begin());
     std::copy(email.begin(), email.end(), it);
+    
     auto pbkdf = Botan::PasswordHashFamily::create("PBKDF2(SHA-256)")->from_params(250000);
     uint8_t k[32];
     pbkdf->derive_key(k, sizeof(k), (const char*)buf.data(), buf.size(), nullptr, 0);
     buf.resize(sizeof(k) + password.size());
+    it = buf.begin() + password.size();
     std::copy(std::begin(k), std::end(k), it);
 
     auto& rng = Botan::system_rng();
@@ -87,7 +89,7 @@ void Vault::saveVault(){
 }
 void Vault::loadVault(int userId) {
     SQLite3::error_code ec;
-    auto stmt = _db.createStatement("select (id, name, login, pwd, confirmPwd, url) from "
+    auto stmt = _db.createStatement("select id, name, login, pwd, confirmPwd, url from "
     "credentials where user_id=?", ec);
     #if DEBUG
     if(ec && ec != SQLite3::SQLite3Error::Done){

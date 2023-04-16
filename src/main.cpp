@@ -23,17 +23,16 @@ public:
 			_mainWin->Close();
 			return false;
 		}
-		DEBUG_LOG(generatePassword(RNG::instance(), 10, true, 2) << '\n');
-		/*_loginPanel = new LoginPanel(_mainWin);
+		_loginPanel = new LoginPanel(_mainWin);
 		if (_loginPanel->ShowModal() == wxID_OK) {
-			std::cout << _loginPanel->GetLogin() << std::endl;
-			std::cout << _loginPanel->GetPassword() << std::endl;
+			std::string email(_loginPanel->GetLogin()), pwd(_loginPanel->GetPassword());
+			DEBUG_LOG(_vault.login(email, pwd) << '\n');
 		}
 		else {
 			_mainWin->Close();
 		}
 
-		_loginPanel->Destroy();*/
+		_loginPanel->Destroy();
 		_generatePasswordPanel = new GeneratePasswordPanel(_mainWin);
 		_generatePasswordPanel->Show();
 

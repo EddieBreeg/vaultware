@@ -17,6 +17,7 @@ class Vault{
         size_t _pos = 0; // the position in the key stream
         void saveVault();
         void loadVault();
+        void updateCredential(size_t index);
     public:
         class iterator {
             const Credential* _ptr = nullptr;
@@ -25,7 +26,7 @@ class Vault{
             friend class Vault;
         public:
             using iterator_category = std::random_access_iterator_tag;
-            bool operator!=(const iterator& other) const { return _ptr == other._ptr; }
+            bool operator!=(const iterator& other) const { return _ptr != other._ptr; }
             iterator& operator++() { ++_ptr; return *this; }
             iterator operator++(int) { return iterator{_ptr++}; }
             const Credential* operator->() { return _ptr; }
@@ -41,7 +42,7 @@ class Vault{
         Vault();
         ~Vault();
         iterator begin() { return iterator{_contents.data()}; }
-        iterator end() { return begin() + _contents.size(); }
+        iterator end() { return iterator{_contents.data() + _contents.size()}; }
         const Credential& operator[](size_t index) const { return _contents[index]; }
         bool login(const std::string& email, const std::string& password);
         void exportVault();

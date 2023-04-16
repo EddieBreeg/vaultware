@@ -13,6 +13,8 @@ class Vault{
         SQLite3::Database _db;
         std::vector<Credential> _contents;
         std::unique_ptr<Botan::StreamCipher> _cipher;
+        void saveVault();
+        void loadVault(int userId);
     public:
         class iterator {
             Credential* _ptr = nullptr;
@@ -39,10 +41,9 @@ class Vault{
         iterator begin() { return iterator{_contents.data()}; }
         iterator end() { return begin() + _contents.size(); }
         bool login(const std::string& email, const std::string& password);
-        void saveVault();
         void exportVault();
         void importVault();
-        void addCredential(Credential credential);
+        void addCredential(Credential&& credential);
         void deleteCredential(const std::string& name);
         bool isOpen() const;
         SQLite3::error_code getError() const;

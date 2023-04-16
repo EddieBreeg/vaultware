@@ -48,7 +48,68 @@ bool Vault::login(const std::string& email, const std::string& password){
     auto res = stmt();
     // if user wasn't found, login failed
     if(ec == SQLite3::SQLite3Error::Done) return false;
+
+    _cipher->set_key(k, sizeof(k));
+    SQLite3::Blob iv = res.at<SQLite3::Blob>(3);
+    _cipher->set_iv(iv.data(), iv.size());
+
+    loadVault(res.at<int>(0));
+
     return true;
+}
+void Vault::saveVault(){
+    _cipher->seek(0);
+    SQLite3::error_code ec;
+    auto stmt = _db.createStatement(
+        "update credentials set name=?, login=?, pwd=?, url=?, confirmPwd=? where id=?;", ec
+    );
+    #if DEBUG
+    if(ec){
+        DEBUG_LOG(ec.what() << '\n');
+        return;
+    }
+    #endif
+    for(const Credential& c: _contents){
+        Credential enc = c.ciphered(_cipher);
+        stmt.bindParams(
+            enc.getName(), enc.getLogin(), enc.getPassword(), enc.getUrl(), enc.getConfirmPassword(),
+                enc.getId()
+        );
+        stmt(ec);
+        if(ec){
+            DEBUG_LOG(ec.what() << '\n');
+        }
+    }
+}
+void Vault::loadVault(int userId) {
+    SQLite3::error_code ec;
+    auto stmt = _db.createStatement("select (id, name, login, pwd, confirmPwd, url) from "
+    "credentials where user_id=?", ec);
+    #if DEBUG
+    if(ec){
+        DEBUG_LOG(ec.what() << '\n');
+        return;
+    }
+    #endif
+    stmt.bindParam(1, userId);
+    _cipher->seek(0);
+    auto res = stmt(ec);
+    for(; ec == SQLite3::SQLite3Error::Row; res = stmt(ec)){
+        Credential c(res.at<int>(0),
+            res.at<std::string_view>(1),
+            res.at<std::string_view>(2),
+            res.at<std::string_view>(3),
+            res.at<std::string_view>(4),
+            res.at<int>(5));
+        _contents.emplace_back(c.ciphered(_cipher));
+    }
+    if(ec != SQLite3::SQLite3Error::Done){
+        DEBUG_LOG("Couldn't load vault: " << ec.what() << '\n');
+    }
+}
+void Vault::addCredential(Credential&& c) {
+    _contents.emplace_back(c);
+    saveVault();
 }
 
 Vault::Vault(): _db(vaultPath().u8string())
@@ -61,7 +122,7 @@ Vault::Vault(): _db(vaultPath().u8string())
         "iv blob not null default x'0000000000000000');");
     _db.execute("create table if not exists credentials("
         "id integer primary key,"
-        "name varchar unique not null,"
+        "name varchar not null,"
         "login varchar not null,"
         "pwd varchar not null,"
         "url varchar,"

@@ -90,7 +90,7 @@ void Vault::loadVault(int userId) {
     auto stmt = _db.createStatement("select (id, name, login, pwd, confirmPwd, url) from "
     "credentials where user_id=?", ec);
     #if DEBUG
-    if(ec){
+    if(ec && ec != SQLite3::SQLite3Error::Done){
         DEBUG_LOG(ec.what() << '\n');
         return;
     }
@@ -99,8 +99,10 @@ void Vault::loadVault(int userId) {
     _cipher->seek(0);
     auto res = stmt(ec);
     for(; ec == SQLite3::SQLite3Error::Row; res = stmt(ec)){
+        Credential c(res);
+        _pos += c.size();
         _contents.emplace_back(
-            std::move(Credential(res).cipher(_cipher))
+            std::move(c.cipher(_cipher))
         );
     }
     if(ec != SQLite3::SQLite3Error::Done){
@@ -108,8 +110,44 @@ void Vault::loadVault(int userId) {
     }
 }
 void Vault::addCredential(Credential&& c) {
+    SQLite3::error_code ec;
+    auto stmt = _db.createStatement("insert into credentials "
+    "(name, login, pwd, url, confirmPwd) values "
+    "?, ?, ?, ?, ?", ec);
+    #if DEBUG
+    if(ec){
+        DEBUG_LOG(ec.what() << '\n');
+        return;
+    }
+    #endif
+    auto enc = c.ciphered(_cipher);
+    stmt.bindParams(enc.getName(), enc.getLogin(), enc.getPassword(), enc.getUrl(), (int)enc.getConfirmPassword());
+    stmt(ec); // insert the new credential in the database
+    if(ec && ec != SQLite3::SQLite3Error::Done){
+        DEBUG_LOG(ec.what() << '\n');
+        _cipher->seek(_pos);
+        return;
+    }
+    _pos += enc.size(); // update the stream position
+    // retrieve the id of the inserted credential
+    stmt = _db.createStatement("select id from credentials order by id desc limit 1");
+    auto res = stmt(ec); 
+    c.setId(res.at<int>(0));
     _contents.emplace_back(c);
-    saveVault();
+}
+void Vault::deleteCredential(size_t index) {
+    auto it = _contents.begin() + index;
+    auto stmt = _db.createStatement("delete from credentials where id=?");
+    stmt.bindParam(1, it->getId());
+    SQLite3::error_code ec;
+    stmt(ec);
+    if(ec){
+        DEBUG_LOG(ec.what() << '\n');
+    }
+    // update the position in the keystream
+    _pos -= it->size(); 
+    _cipher->seek(_pos);
+    _contents.erase(it);
 }
 
 Vault::Vault(): _db(vaultPath().u8string())

@@ -9,7 +9,6 @@ Credential& Credential::cipher(std::unique_ptr<Botan::StreamCipher>& cipher){
     cipher->cipher1((uint8_t*)_login.data(), _login.size());
     cipher->cipher1((uint8_t*)_password.data(), _password.size());
     cipher->cipher1((uint8_t*)_url.data(), _url.size());
-    cipher->cipher1((uint8_t*)&_confirmPassword, sizeof(_confirmPassword));
     return *this;
 }
 Credential::Credential(int id, std::string_view name, 

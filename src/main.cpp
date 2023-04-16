@@ -20,16 +20,20 @@ public:
 		_grid = new CredentialsGrid(_mainWin, &_vault);
 
 		_mainWin->Show();
+		if(!_vault.isOpen()){
+			wxMessageBox(_vault.getError().what(), wxMessageBoxCaptionStr, 
+				wxICON_ERROR);
+			_mainWin->Close();
+			return false;
+		}
 		_loginPanel = new LoginPanel(_mainWin);
-		/*if (_loginPanel->ShowModal() == wxID_OK) {
-			if (_vault.login(_loginPanel->GetLogin(), _loginPanel->GetPassword()))
-				_loginPanel->Destroy();
-			else
-				_mainWin->Close();
+		if (_loginPanel->ShowModal() == wxID_OK) {
+			std::string email(_loginPanel->GetLogin()), pwd(_loginPanel->GetPassword());
+			DEBUG_LOG(_vault.login(email, pwd) << '\n');
 		}
 		else {
 			_mainWin->Close();
-		}*/
+		}
 
 		if(!_vault.isOpen()){
 			wxMessageBox(_vault.getError().what(), wxMessageBoxCaptionStr, 

@@ -26,6 +26,10 @@ class Credential{
         const std::string& getPassword() const;
         const std::string& getUrl() const;
         bool getConfirmPassword() const;
+        size_t size() const {
+            return sizeof(_confirmPassword) + _name.size() + _password.size() + _login.size()
+                + _url.size();
+        }
         int getId() const;
         ~Credential() = default;
     private:

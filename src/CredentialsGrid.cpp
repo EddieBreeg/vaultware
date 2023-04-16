@@ -18,11 +18,11 @@ CredentialsGrid::CredentialsGrid(wxFrame* parent) {
     _grid->SetColSize(0, 200);
     _grid->SetColSize(1, 200);
 
-    _grid->AppendRows(5);
-    for (int i = 0; i < 5; i++) {
-        _grid->SetCellValue(i, 0, "Name");
-        _grid->SetCellValue(i, 1, "URL");
-    }
+    // _grid->AppendRows(5);
+    // for (int i = 0; i < 5; i++) {
+    //     _grid->SetCellValue(i, 0, "Name");
+    //     _grid->SetCellValue(i, 1, "URL");
+    // }
 
     _grid->SetGridLineColour(wxColour(200, 200, 200));
     _grid->EnableGridLines(true);

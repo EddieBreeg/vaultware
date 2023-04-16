@@ -12,7 +12,6 @@ class Vaultware: public wxApp
 {
 	wxFrame* _mainWin = nullptr;
 	LoginPanel* _loginPanel = nullptr;
-	GeneratePasswordPanel* _generatePasswordPanel = nullptr;
 	CredentialsGrid* _grid = nullptr;
 	Vault _vault;
 public:
@@ -21,14 +20,7 @@ public:
 		_grid = new CredentialsGrid(_mainWin);
 
 		_mainWin->Show();
-		if(!_vault.isOpen()){
-			wxMessageBox(_vault.getError().what(), wxMessageBoxCaptionStr, 
-				wxICON_ERROR);
-			_mainWin->Close();
-			return false;
-		}
-		DEBUG_LOG(generatePassword(RNG::instance(), 10, true, 2) << '\n');
-		/*_loginPanel = new LoginPanel(_mainWin);
+		_loginPanel = new LoginPanel(_mainWin);
 		if (_loginPanel->ShowModal() == wxID_OK) {
 			std::cout << _loginPanel->GetLogin() << std::endl;
 			std::cout << _loginPanel->GetPassword() << std::endl;
@@ -37,9 +29,14 @@ public:
 			_mainWin->Close();
 		}
 
-		_loginPanel->Destroy();*/
-		_generatePasswordPanel = new GeneratePasswordPanel(_mainWin);
-		_generatePasswordPanel->Show();
+		_loginPanel->Destroy();
+		if(!_vault.isOpen()){
+			wxMessageBox(_vault.getError().what(), wxMessageBoxCaptionStr, 
+				wxICON_ERROR);
+			_mainWin->Close();
+			return false;
+		}
+		DEBUG_LOG(generatePassword(RNG::instance(), 10, true, 2) << '\n');
 
 		return true;
 	}

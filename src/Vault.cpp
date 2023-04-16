@@ -55,11 +55,11 @@ bool Vault::login(const std::string& email, const std::string& password){
     std::string h(res.at<std::string_view>(2));
     if(!Botan::argon2_check_pwhash((char*)buf.data(), buf.size(), h)) // wrong password
         return false;
-
+    _userId = res.at<int>(0);
     _cipher->set_key(k, sizeof(k));
     _cipher->set_iv(iv.data(), iv.size());
 
-    loadVault(res.at<int>(0));
+    loadVault();
 
     return true;
 }
@@ -113,7 +113,7 @@ void Vault::saveVault(){
         }
     }
 }
-void Vault::loadVault(int userId) {
+void Vault::loadVault() {
     SQLite3::error_code ec;
     auto stmt = _db.createStatement("select id, name, login, pwd, confirmPwd, url from "
     "credentials where user_id=?", ec);
@@ -123,7 +123,7 @@ void Vault::loadVault(int userId) {
         return;
     }
     #endif
-    stmt.bindParam(1, userId);
+    stmt.bindParam(1, _userId);
     _cipher->seek(0);
     auto res = stmt(ec);
     for(; ec == SQLite3::SQLite3Error::Row; res = stmt(ec)){
@@ -140,8 +140,8 @@ void Vault::loadVault(int userId) {
 void Vault::addCredential(Credential&& c) {
     SQLite3::error_code ec;
     auto stmt = _db.createStatement("insert into credentials "
-    "(name, login, pwd, url, confirmPwd) values "
-    "?, ?, ?, ?, ?", ec);
+    "(name, login, pwd, url, confirmPwd, user_id) values "
+    "(?, ?, ?, ?, ?, ?)", ec);
     #if DEBUG
     if(ec){
         DEBUG_LOG(ec.what() << '\n');
@@ -149,7 +149,8 @@ void Vault::addCredential(Credential&& c) {
     }
     #endif
     auto enc = c.ciphered(_cipher);
-    stmt.bindParams(enc.getName(), enc.getLogin(), enc.getPassword(), enc.getUrl(), (int)enc.getConfirmPassword());
+    stmt.bindParams(enc.getName(), enc.getLogin(), enc.getPassword(), enc.getUrl(), (int)enc.getConfirmPassword(),
+        _userId);
     stmt(ec); // insert the new credential in the database
     if(ec && ec != SQLite3::SQLite3Error::Done){
         DEBUG_LOG(ec.what() << '\n');

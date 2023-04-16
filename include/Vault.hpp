@@ -13,9 +13,10 @@ class Vault{
         SQLite3::Database _db;
         std::vector<Credential> _contents;
         std::unique_ptr<Botan::StreamCipher> _cipher;
+        int _userId = 0;
         size_t _pos = 0; // the position in the key stream
         void saveVault();
-        void loadVault(int userId);
+        void loadVault();
     public:
         class iterator {
             const Credential* _ptr = nullptr;

@@ -45,7 +45,6 @@ public:
 			_mainWin->Close();
 			return false;
 		}
-		DEBUG_LOG(generatePassword(RNG::instance(), 10, true, 2) << '\n');
 
 		return true;
 	}

@@ -30,6 +30,10 @@ public:
 		if (_loginPanel->ShowModal() == wxID_OK) {
 			std::string email(_loginPanel->GetLogin()), pwd(_loginPanel->GetPassword());
 			DEBUG_LOG(_vault.login(email, pwd) << '\n');
+			if (_vault.login(email, pwd))
+				_loginPanel->Destroy();
+			else
+				_mainWin->Close();
 		}
 		else {
 			_mainWin->Close();

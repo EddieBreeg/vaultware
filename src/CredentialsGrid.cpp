@@ -14,14 +14,14 @@ CredentialsGrid::CredentialsGrid(wxFrame* parent) {
     _grid->CreateGrid(0, 2);
     _grid->SetRowLabelSize(0);
     _grid->SetColLabelValue(0, "Name");
-    _grid->SetColLabelValue(1, "App");
+    _grid->SetColLabelValue(1, "URL");
     _grid->SetColSize(0, 200);
     _grid->SetColSize(1, 200);
 
     _grid->AppendRows(5);
     for (int i = 0; i < 5; i++) {
         _grid->SetCellValue(i, 0, "Name");
-        _grid->SetCellValue(i, 1, "App");
+        _grid->SetCellValue(i, 1, "URL");
     }
 
     _grid->SetGridLineColour(wxColour(200, 200, 200));
@@ -74,7 +74,14 @@ void CredentialsGrid::OnMenuDelete(wxCommandEvent& event) {
     deleteMenu->SetSizer(sizer);
     deleteMenu->Layout();
 
-    //std::cout << "Delete" << _clickedRow << std::endl;
+    if (deleteMenu->ShowModal() == wxID_OK) {
+        std::cout << "suppr !" << std::endl;
+    }
+    else {
+        std::cout << "non" << std::endl;
+    }
+
+    deleteMenu->Destroy();
 }
 
 void CredentialsGrid::OnAddCredential(wxCommandEvent& event) {

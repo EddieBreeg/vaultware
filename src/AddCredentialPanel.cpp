@@ -7,7 +7,7 @@ AddCredentialPanel::AddCredentialPanel(wxFrame* parent) : wxDialog(parent, wxID_
 	wxBoxSizer* nameSizer = new wxBoxSizer(wxHORIZONTAL);
 	_nameInput = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
 	nameSizer->Add(new wxStaticText(this, wxID_ANY, "Credential name :"), 0, wxRIGHT, 8);
-	nameSizer->Add(_loginInput, 1);
+	nameSizer->Add(_nameInput, 1);
 	mainSizer->Add(nameSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 10);
 
 	wxBoxSizer* loginSizer = new wxBoxSizer(wxHORIZONTAL);
@@ -21,22 +21,16 @@ AddCredentialPanel::AddCredentialPanel(wxFrame* parent) : wxDialog(parent, wxID_
 	passwordSizer->Add(new wxStaticText(this, wxID_ANY, "Credential password :"), 0, wxRIGHT, 8);
 	passwordSizer->Add(_passwordInput, 1);
 	mainSizer->Add(passwordSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 10);
-	
-	wxBoxSizer* urlSizer = new wxBoxSizer(wxHORIZONTAL);
-	_urlInput = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
-	urlSizer->Add(new wxStaticText(this, wxID_ANY, "Credential name :"), 0, wxRIGHT, 8);
-	urlSizer->Add(_urlInput, 1);
-	mainSizer->Add(urlSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 10);
 
 	wxButton* openPasswordGeneratorButton = new wxButton(this, wxID_ANY, "Open password generator");
 	mainSizer->Add(openPasswordGeneratorButton, 0, wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 10);
 	openPasswordGeneratorButton->Bind(wxEVT_BUTTON, &AddCredentialPanel::OnOpenPasswordGenerator, this);
 
-	wxBoxSizer* appSizer = new wxBoxSizer(wxHORIZONTAL);
+	wxBoxSizer* urlSizer = new wxBoxSizer(wxHORIZONTAL);
 	_urlInput = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
-	appSizer->Add(new wxStaticText(this, wxID_ANY, "Credential app :"), 0, wxRIGHT, 8);
-	appSizer->Add(_urlInput, 1);
-	mainSizer->Add(appSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 10);
+	urlSizer->Add(new wxStaticText(this, wxID_ANY, "Credential URL :"), 0, wxRIGHT, 8);
+	urlSizer->Add(_urlInput, 1);
+	mainSizer->Add(urlSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 10);
 
 	wxBoxSizer* bottomSizer = new wxBoxSizer(wxHORIZONTAL);
 	_confirmPasswordInput = new wxCheckBox(this, wxID_ANY, "Confirm password");
@@ -52,7 +46,7 @@ AddCredentialPanel::AddCredentialPanel(wxFrame* parent) : wxDialog(parent, wxID_
 	_nameInput->SetHint("Enter credential name");
 	_loginInput->SetHint("Enter credential login");
 	_passwordInput->SetHint("Enter credential password");
-	_urlInput->SetHint("Enter credential app");
+	_urlInput->SetHint("Enter credential URL");
 
 	SetDefaultItem(confirmButton);
 	SetSizer(mainSizer);

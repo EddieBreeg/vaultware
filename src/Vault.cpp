@@ -64,14 +64,18 @@ bool Vault::login(const std::string& email, const std::string& password){
     return true;
 }
 void Vault::updateCredential(size_t index, const Credential& c){
-    if(index >= _contents.size()) return;
+    _contents[index] = c; // update the credential
+    updateCredential(index); // update the database
+}
+void Vault::updateCredential(size_t i) {
+    if(i >= _contents.size()) return;
     // find the keystream position
     size_t pos = 0;
-    for(size_t i = 0; i < index; ++i)
+    for(size_t i = 0; i < i; ++i)
         pos += _contents[i].size();
     _cipher->seek(pos);
-    _contents[index] = c; // update the credential
-    Credential enc = c.ciphered(_cipher);
+    const auto& c = _contents[i]; 
+    auto data = c.ciphered(_cipher);
     _cipher->seek(_pos); // reset the keystream positon to the last one
     SQLite3::error_code ec;
     auto stmt = _db.createStatement("update credentials"
@@ -82,12 +86,17 @@ void Vault::updateCredential(size_t index, const Credential& c){
         return;
     }
     #endif
-    stmt.bindParams(enc.getName(), enc.getLogin(), enc.getPassword(), enc.getConfirmPassword(),
-        enc.getUrl(), enc.getId());
+    stmt.bindParams(
+        std::string_view{data.getName()}, 
+        std::string_view{data.getLogin()}, 
+        std::string_view{data.getPassword()},
+        c.getConfirmPassword(),
+        std::string_view{data.getUrl()}, c.getId());
     stmt(ec);
     if(ec != SQLite3::SQLite3Error::Done){
         DEBUG_LOG(ec.what() << '\n');
     }
+
 }
 void Vault::saveVault(){
     _cipher->seek(0);
@@ -101,21 +110,13 @@ void Vault::saveVault(){
         return;
     }
     #endif
-    for(const Credential& c: _contents){
-        Credential enc = c.ciphered(_cipher);
-        stmt.bindParams(
-            enc.getName(), enc.getLogin(), enc.getPassword(), enc.getUrl(), enc.getConfirmPassword(),
-                enc.getId()
-        );
-        stmt(ec);
-        if(ec){
-            DEBUG_LOG(ec.what() << '\n');
-        }
+    for(size_t i = 0; i < _contents.size(); ++i){
+        updateCredential(i);
     }
 }
 void Vault::loadVault() {
     SQLite3::error_code ec;
-    auto stmt = _db.createStatement("select id, name, login, pwd, confirmPwd, url from "
+    auto stmt = _db.createStatement("select id, name, login, pwd, url, confirmPwd from "
     "credentials where user_id=?", ec);
     #if DEBUG
     if(ec && ec != SQLite3::SQLite3Error::Done){
@@ -128,10 +129,10 @@ void Vault::loadVault() {
     auto res = stmt(ec);
     for(; ec == SQLite3::SQLite3Error::Row; res = stmt(ec)){
         Credential c(res);
-        _pos += c.size();
         _contents.emplace_back(
             std::move(c.cipher(_cipher))
         );
+        _pos += c.size();
     }
     if(ec != SQLite3::SQLite3Error::Done){
         DEBUG_LOG("Couldn't load vault: " << ec.what() << '\n');
@@ -148,16 +149,20 @@ void Vault::addCredential(Credential&& c) {
         return;
     }
     #endif
-    auto enc = c.ciphered(_cipher);
-    stmt.bindParams(enc.getName(), enc.getLogin(), enc.getPassword(), enc.getUrl(), (int)enc.getConfirmPassword(),
-        _userId);
+    auto data = c.ciphered(_cipher);
+    stmt.bindParams(
+        std::string_view{data.getName()}, 
+        std::string_view{data.getLogin()}, 
+        std::string_view{data.getPassword()}, 
+        std::string_view{data.getUrl()}, 
+        (int)c.getConfirmPassword(), _userId);
     stmt(ec); // insert the new credential in the database
     if(ec && ec != SQLite3::SQLite3Error::Done){
         DEBUG_LOG(ec.what() << '\n');
         _cipher->seek(_pos);
         return;
     }
-    _pos += enc.size(); // update the stream position
+    _pos += c.size(); // update the stream position
     // retrieve the id of the inserted credential
     stmt = _db.createStatement("select id from credentials order by id desc limit 1");
     auto res = stmt(ec); 
@@ -189,10 +194,10 @@ Vault::Vault(): _db(vaultPath().u8string())
         "iv blob not null default x'0000000000000000');");
     _db.execute("create table if not exists credentials("
         "id integer primary key,"
-        "name varchar not null,"
-        "login varchar not null,"
-        "pwd varchar not null,"
-        "url varchar,"
+        "name blob not null,"
+        "login blob,"
+        "pwd blob,"
+        "url blob,"
         "confirmPwd int default 0,"
         "user_id integer not null,"
         "foreign key(user_id) references users(id));");

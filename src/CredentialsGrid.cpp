@@ -3,7 +3,8 @@
 #include <string>
 #include <AddCredentialPanel.hpp>
 
-CredentialsGrid::CredentialsGrid(wxFrame* parent) {
+CredentialsGrid::CredentialsGrid(wxFrame* parent, Vault* vault) {
+    _vault = vault;
     _parent = parent;
     _grid = new wxGrid(parent, wxID_ANY);
     wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
@@ -87,7 +88,7 @@ void CredentialsGrid::OnMenuDelete(wxCommandEvent& event) {
 void CredentialsGrid::OnAddCredential(wxCommandEvent& event) {
     AddCredentialPanel* panel = new AddCredentialPanel(_parent);
     if (panel->ShowModal() == wxID_OK) {
-        std::cout << "ouais" << std::endl;
+        _vault->addCredential(panel->GetCredential());
     }
     panel->Destroy();
 }

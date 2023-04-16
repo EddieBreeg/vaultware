@@ -6,16 +6,20 @@
 #include <PasswordGenerator.hpp>
 #include <Log.h>
 #include <RNG.hpp>
+#include <CredentialsGrid.hpp>
 
 class Vaultware: public wxApp
 {
 	wxFrame* _mainWin = nullptr;
 	LoginPanel* _loginPanel = nullptr;
 	GeneratePasswordPanel* _generatePasswordPanel = nullptr;
+	CredentialsGrid* _grid = nullptr;
 	Vault _vault;
 public:
 	virtual bool OnInit() override {
-		_mainWin = new wxFrame(nullptr, wxID_ANY, "Vaultware");
+		_mainWin = new wxFrame(nullptr, wxID_ANY, "Vaultware", wxDefaultPosition, wxSize(420, 300));
+		_grid = new CredentialsGrid(_mainWin);
+
 		_mainWin->Show();
 		if(!_vault.isOpen()){
 			wxMessageBox(_vault.getError().what(), wxMessageBoxCaptionStr, 

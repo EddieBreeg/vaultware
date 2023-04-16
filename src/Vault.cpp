@@ -32,18 +32,7 @@ static inline path vaultPath(){
     return r;
 }
 bool Vault::login(const std::string& email, const std::string& password){
-    std::vector<uint8_t> buf(email.size() + password.size());
-    // concatenate the password and email
-    auto it = std::copy(password.begin(), password.end(), buf.begin());
-    std::copy(email.begin(), email.end(), it);
     
-    auto pbkdf = Botan::PasswordHashFamily::create("PBKDF2(SHA-256)")->from_params(250000);
-    uint8_t k[32];
-    pbkdf->derive_key(k, sizeof(k), (const char*)buf.data(), buf.size(), nullptr, 0);
-    buf.resize(sizeof(k) + password.size());
-    it = buf.begin() + password.size();
-    std::copy(std::begin(k), std::end(k), it);
-
     auto& rng = Botan::system_rng();
     auto stmt = _db.createStatement("select * from users where email=?");
     SQLite3::error_code ec;
@@ -51,12 +40,23 @@ bool Vault::login(const std::string& email, const std::string& password){
     auto res = stmt(ec);
     // if user wasn't found, login failed
     if(ec == SQLite3::SQLite3Error::Done) return false;
+
+    SQLite3::Blob iv = res.at<SQLite3::Blob>(3);
+    std::vector<uint8_t> buf(email.size() + password.size());
+    // concatenate the password and email
+    auto it = std::copy(password.begin(), password.end(), buf.begin());
+    std::copy(email.begin(), email.end(), it);
+    auto pbkdf = Botan::PasswordHashFamily::create("PBKDF2(SHA-256)")->from_params(200000);
+    uint8_t k[32];
+    pbkdf->derive_key(k, sizeof(k), (const char*)buf.data(), buf.size(), iv.data(), iv.size());
+    buf.resize(sizeof(k) + password.size());
+    it = buf.begin() + password.size();
+    std::copy(std::begin(k), std::end(k), it);
     std::string h(res.at<std::string_view>(2));
     if(!Botan::argon2_check_pwhash((char*)buf.data(), buf.size(), h)) // wrong password
         return false;
 
     _cipher->set_key(k, sizeof(k));
-    SQLite3::Blob iv = res.at<SQLite3::Blob>(3);
     _cipher->set_iv(iv.data(), iv.size());
 
     loadVault(res.at<int>(0));

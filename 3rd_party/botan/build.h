@@ -5,10 +5,10 @@
 * Build configuration for Botan 2.19.3
 *
 * Automatically generated from
-* 'configure.py --minimized-build --build-targets=static --without-documentation --enable-modules=auto_rng,chacha,sha2_32,base64,argon2 --debug-mode'
+* 'configure.py --minimized-build --build-targets=static --without-documentation --enable-modules=system_rng,chacha,sha2_32,base64,argon2'
 *
 * Target
-*  - Compiler: cl  /EHs /GR /MDd /bigobj /Zi /FS
+*  - Compiler: cl  /EHs /GR /MD /bigobj /O2 /Oi
 *  - Arch: x86_64
 *  - OS: windows
 */
@@ -86,23 +86,20 @@
 * Module availability definitions
 */
 #define BOTAN_HAS_ARGON2 20210407
-#define BOTAN_HAS_AUTO_RNG 20161126
-#define BOTAN_HAS_AUTO_SEEDING_RNG 20160821
 #define BOTAN_HAS_BASE64_CODEC 20131128
 #define BOTAN_HAS_BLAKE2B 20130131
 #define BOTAN_HAS_CHACHA 20180807
 #define BOTAN_HAS_CPUID 20170917
+#define BOTAN_HAS_DYNAMIC_LOADER 20160310
 #define BOTAN_HAS_ENTROPY_SOURCE 20151120
 #define BOTAN_HAS_HASH 20180112
 #define BOTAN_HAS_HEX_CODEC 20131128
-#define BOTAN_HAS_HMAC 20131128
-#define BOTAN_HAS_HMAC_DRBG 20140319
 #define BOTAN_HAS_MAC 20150626
 #define BOTAN_HAS_MDX_HASH_FUNCTION 20131128
 #define BOTAN_HAS_PBKDF 20180902
 #define BOTAN_HAS_SHA2_32 20131128
-#define BOTAN_HAS_STATEFUL_RNG 20160819
 #define BOTAN_HAS_STREAM_CIPHER 20131128
+#define BOTAN_HAS_SYSTEM_RNG 20141202
 #define BOTAN_HAS_UTIL_FUNCTIONS 20180903
 
 

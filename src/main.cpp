@@ -34,6 +34,7 @@ public:
 				_loginPanel->Destroy();
 			}else {
 				_mainWin->Close();
+				return false;
 			}
 		}
 		if(!_vault.isOpen()){

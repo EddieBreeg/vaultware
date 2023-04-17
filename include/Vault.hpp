@@ -15,6 +15,7 @@ class Vault{
         std::unique_ptr<Botan::StreamCipher> _cipher;
         int _userId = 0;
         size_t _pos = 0; // the position in the key stream
+        std::string _authHash;
         void loadVault();
         void updateCredential(size_t index);
     public:
@@ -45,6 +46,7 @@ class Vault{
         iterator end() { return iterator{_contents.data() + _contents.size()}; }
         const Credential& operator[](size_t index) const { return _contents[index]; }
         bool login(const std::string& email, const std::string& password);
+        bool checkPassword(std::string_view password) const;
         void exportVault();
         void importVault();
 

@@ -52,8 +52,8 @@ bool Vault::login(const std::string& email, const std::string& password){
     buf.resize(sizeof(k) + password.size());
     it = buf.begin() + password.size();
     std::copy(std::begin(k), std::end(k), it);
-    std::string h(res.at<std::string_view>(2));
-    if(!Botan::argon2_check_pwhash((char*)buf.data(), buf.size(), h)) // wrong password
+    _authHash = std::string(res.at<std::string_view>(2));
+    if(!checkPassword({(char*)buf.data(), buf.size()})) // wrong password
         return false;
     _userId = res.at<int>(0);
     _cipher->set_key(k, sizeof(k));
@@ -62,6 +62,9 @@ bool Vault::login(const std::string& email, const std::string& password){
     loadVault();
 
     return true;
+}
+bool Vault::checkPassword(std::string_view pwd) const {
+    return Botan::argon2_check_pwhash(pwd.data(), pwd.length(), _authHash);
 }
 void Vault::updateCredential(size_t index, const Credential& c){
     _contents[index] = c; // update the credential

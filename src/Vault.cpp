@@ -53,7 +53,7 @@ bool Vault::login(const std::string& email, const std::string& password){
     _cipher->set_key(_k, sizeof(_k));
     _cipher->set_iv(iv.data(), iv.size());
 
-    loadVault();
+    loadVault(_db);
 
     return true;
 }
@@ -119,13 +119,13 @@ void Vault::updateCredential(size_t i) {
     }
 
 }
-void Vault::saveVault(){
+void Vault::saveVault(SQLite3::Database& db){
     _cipher->seek((_pos = 0));
 
     for(const Credential& c: _contents){
         auto enc = c.ciphered(_cipher);
         _pos += enc.size();
-        auto stmt = _db.createStatement("update credentials set "
+        auto stmt = db.createStatement("update credentials set "
         "name=?, login=?, pwd=?, url=?, confirmPwd=? where id=?");
         stmt.bindParams(
             std::string_view{enc.getName()},
@@ -141,9 +141,9 @@ void Vault::saveVault(){
             throw ec;
     }
 }
-void Vault::loadVault() {
+void Vault::loadVault(SQLite3::Database& db) {
     SQLite3::error_code ec;
-    auto stmt = _db.createStatement("select id, name, login, pwd, url, confirmPwd from "
+    auto stmt = db.createStatement("select id, name, login, pwd, url, confirmPwd from "
     "credentials where user_id=?", ec);
     #if DEBUG
     if(ec){

@@ -18,7 +18,7 @@ class Vault{
         size_t _pos = 0; // the position in the key stream
         std::string _authHash;
         uint8_t _k[32];
-        void loadVault();
+        void loadVault(SQLite3::Database& db);
         void updateCredential(size_t index);
         static constexpr struct Argon2Params_t {
             int M = 0x20000;
@@ -26,6 +26,7 @@ class Vault{
         } _argon2Params {};
         void compute_key(std::string_view login, std::string_view pwd, Botan::PasswordHash& h,
             const uint8_t *iv, size_t iv_len);
+        void saveVault(SQLite3::Database& db);
     public:
         class iterator {
             const Credential* _ptr = nullptr;
@@ -47,7 +48,7 @@ class Vault{
             iterator& operator+=(size_t n) { _ptr+=n; return *this; }
             iterator& operator-=(size_t n) { _ptr-=n; return *this; }
         };
-        void saveVault();
+        inline void saveVault() { saveVault(_db); }
         Vault();
         ~Vault();
         iterator begin() { return iterator{_contents.data()}; }

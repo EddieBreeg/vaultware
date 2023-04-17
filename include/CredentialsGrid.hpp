@@ -4,6 +4,7 @@
 #include <wx/grid.h>
 #include <Vault.hpp>
 #include <wx/clipbrd.h>
+#include <GeneratePasswordPanel.hpp>
 
 class CredentialsGrid
 {
@@ -22,5 +23,5 @@ private:
 	void OnMenuEdit(wxCommandEvent& event);
 	void OnMenuDelete(wxCommandEvent& event);
 	void OnAddCredential(wxCommandEvent& event);
-
+	void OnOpenPasswordGenerator(wxCommandEvent& event);
 };

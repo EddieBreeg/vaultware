@@ -25,7 +25,7 @@ public:
 			_mainWin->Close();
 			return false;
 		}
-		_loginPanel = new LoginPanel(_mainWin);
+login:	_loginPanel = new LoginPanel(_mainWin);
 		if (_loginPanel->ShowModal() == wxID_OK) {
 			std::string email(_loginPanel->GetLogin()), pwd(_loginPanel->GetPassword());
 			if (_vault.login(email, pwd)){
@@ -33,8 +33,15 @@ public:
 				_mainWin->Show();
 				_loginPanel->Destroy();
 			}else {
-				_mainWin->Close();
-				return false;
+				wxDialog* errorPassword = new wxDialog(_loginPanel, wxID_ANY, "Wrong credentials");
+				wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
+				wxStaticText* msg = new wxStaticText(errorPassword, wxID_ANY, "The login or the password is not correct");
+				mainSizer->Add(msg, 0, wxALL | wxALIGN_CENTER_HORIZONTAL, 5);
+				wxButton* close = new wxButton(errorPassword, wxID_OK, "Close");
+				mainSizer->Add(close, 0, wxALIGN_CENTER);
+				errorPassword->SetSizerAndFit(mainSizer);
+				errorPassword->ShowModal();
+				goto login;
 			}
 		}
 		if(!_vault.isOpen()){

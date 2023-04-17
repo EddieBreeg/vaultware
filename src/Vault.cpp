@@ -4,7 +4,6 @@
 
 #include "Log.h"
 #include <cassert>
-#include <botan/pwdhash.h>
 #include <botan/argon2.h>
 #include <botan/system_rng.h>
 #include <string_view>
@@ -42,12 +41,10 @@ bool Vault::login(const std::string& email, const std::string& password){
     if(ec == SQLite3::SQLite3Error::Done) return false;
 
     SQLite3::Blob iv = res.at<SQLite3::Blob>(3);
-    std::vector<uint8_t> buf(email.size() + password.size());
-    // concatenate the password and email
-    auto it = std::copy(password.begin(), password.end(), buf.begin());
-    std::copy(email.begin(), email.end(), it);
-    auto argon2 = Botan::PasswordHashFamily::create("Argon2id")->from_params(0x20000, 1, 1);
-    argon2->derive_key(_k, sizeof(_k), (const char*)buf.data(), buf.size(), iv.data(), iv.size());
+    
+    auto argon2 = Botan::PasswordHashFamily::create("Argon2id")->from_params(_argon2Params.M, 
+        _argon2Params.t, _argon2Params.p);
+    compute_key(email, password, *argon2, iv.data(), iv.size());
 
     _authHash = std::string(res.at<std::string_view>(2));
     if(!checkPassword(password)) // wrong password
@@ -59,6 +56,28 @@ bool Vault::login(const std::string& email, const std::string& password){
     loadVault();
 
     return true;
+}
+void Vault::createUser(std::string_view login, std::string_view pwd){
+    uint8_t iv[8];
+    Botan::system_rng().randomize(iv, sizeof(iv)); // generate random salt
+    auto argon2 = Botan::PasswordHashFamily::create("Argon2id")->from_params(
+        _argon2Params.M, _argon2Params.t, _argon2Params.p);
+    compute_key(login, pwd, *argon2, iv, sizeof(iv));
+    std::vector<char> buf(sizeof(_k) + pwd.length());
+    auto it = std::copy(pwd.begin(), pwd.end(), buf.begin());
+    std::copy(_k, _k + sizeof(_k), it);
+    _authHash = Botan::argon2_generate_pwhash(buf.data(), buf.size(), Botan::system_rng(),
+        _argon2Params.p, _argon2Params.M, _argon2Params.t);
+    auto stmt = _db.createStatement("insert into users (email, pwd, authHash, iv) "
+    "values (?, ?, ?, ?)");
+    auto ec =
+    stmt.bindParams(login, pwd, std::string_view{_authHash}, SQLite3::Blob(iv, sizeof(iv)));
+    if(ec){
+        throw ec;
+    }    
+    stmt(ec);
+    if(ec != SQLite3::SQLite3Error::Done)
+        throw ec;
 }
 bool Vault::checkPassword(std::string_view pwd) const {
     std::vector<uint8_t> buf(pwd.size() + sizeof(_k));
@@ -144,6 +163,13 @@ void Vault::loadVault() {
     if(ec != SQLite3::SQLite3Error::Done){
         throw ec;
     }
+}
+void Vault::compute_key(std::string_view login, std::string_view pwd, Botan::PasswordHash& alg, 
+        const uint8_t *iv, size_t iv_length){
+    std::vector<char> buf(login.size() + pwd.size());
+    auto it = std::copy(pwd.begin(), pwd.end(), buf.begin());
+    std::copy(login.begin(), login.end(), it);
+    alg.derive_key(_k, sizeof(_k), buf.data(), buf.size(), iv, iv_length);
 }
 void Vault::addCredential(Credential&& c) {
     SQLite3::error_code ec;

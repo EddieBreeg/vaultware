@@ -8,6 +8,7 @@
 #include "SQLite3/Database.hpp"
 #include <vector>
 #include <botan/stream_cipher.h>
+#include <botan/pwdhash.h>
 
 class Vault{
         SQLite3::Database _db;
@@ -19,6 +20,12 @@ class Vault{
         uint8_t _k[32];
         void loadVault();
         void updateCredential(size_t index);
+        static constexpr struct Argon2Params_t {
+            int M = 0x20000;
+            int p = 1, t = 1;
+        } _argon2Params {};
+        void compute_key(std::string_view login, std::string_view pwd, Botan::PasswordHash& h,
+            const uint8_t *iv, size_t iv_len);
     public:
         class iterator {
             const Credential* _ptr = nullptr;
@@ -50,6 +57,7 @@ class Vault{
         bool checkPassword(std::string_view password) const;
         void exportVault();
         void importVault();
+        void createUser(std::string_view user, std::string_view password);
 
         void addCredential(Credential&& credential);
         void deleteCredential(size_t index);

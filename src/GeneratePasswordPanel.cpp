@@ -12,7 +12,8 @@ GeneratePasswordPanel::GeneratePasswordPanel(wxFrame* parent) : wxDialog(parent,
 	_lengthInput = new wxSpinCtrl(this, wxID_ANY, "10", wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 5, 100, 10);
 	_minSpecialCharsInput = new wxSpinCtrl(this, wxID_ANY, "1", wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 1, 100, 1);
 
-    std::string password = generatePassword(RNG::instance(), GetLength(), GetAllowNumbers(), GetAllowNumbers() ? GetMinSpecialChars() : 0);
+    PasswordGenerator<RNG> g(RNG::instance());
+    std::string password = g(GetLength(), GetAllowNumbers(), GetAllowNumbers() ? GetMinSpecialChars() : 0);
     _passwordResult = new wxTextCtrl(this, wxID_ANY, password);
     _passwordResult->Disable();
 
@@ -68,7 +69,8 @@ int GeneratePasswordPanel::GetMinSpecialChars() const {
 }
 
 void GeneratePasswordPanel::OnGenerate(wxCommandEvent& event) {
-    _passwordResult->SetValue(generatePassword(RNG::instance(), GetLength(), GetAllowNumbers(), 
+    PasswordGenerator<RNG> g(RNG::instance());
+    _passwordResult->SetValue(g(GetLength(), GetAllowNumbers(), 
         _minSpecialCharsInput->GetValue() * _allowSpecialChars->GetValue()));
 }
 

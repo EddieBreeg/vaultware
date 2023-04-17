@@ -11,4 +11,4 @@ il est cependant de changer le toolkit utilisé dans les propriétés de projets
 - [cpp-sqlite3](https://github.com/EddieBreeg/cpp-sqlite3)
 - [Botan 2](https://github.com/randombit/botan)
 
-A des fins de simplicités, les binaires sont disponibles sur la page [release](https://github.com/EddieBreeg/vaultware/releases). Le fichier lib.7z doit être récompressé à la racine du projet.
+A des fins de simplicités, les binaires sont disponibles sur la page [release](https://github.com/EddieBreeg/vaultware/releases). Le fichier lib.7z doit être décompressé à la racine du projet.

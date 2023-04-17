@@ -9,6 +9,7 @@ class CredentialsGrid
 {
 public:
 	CredentialsGrid(wxFrame* parent, Vault* vault);
+	void RefreshGrid();
 
 	wxGrid* _grid;
 	wxFrame* _parent;
@@ -21,4 +22,5 @@ private:
 	void OnMenuEdit(wxCommandEvent& event);
 	void OnMenuDelete(wxCommandEvent& event);
 	void OnAddCredential(wxCommandEvent& event);
+
 };

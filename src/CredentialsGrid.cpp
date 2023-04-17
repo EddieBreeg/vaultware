@@ -18,15 +18,7 @@ CredentialsGrid::CredentialsGrid(wxFrame* parent, Vault* vault) {
     _grid->SetColLabelValue(1, "URL");
     _grid->SetColSize(0, 200);
     _grid->SetColSize(1, 200);
-
-    int size = _vault->end() - _vault->begin();
-    _grid->AppendRows(size);
-    for (auto it = _vault->begin(); it != _vault->end(); ++it) {
-        int index = it - _vault->begin();
-        _grid->SetCellValue(index, 0, (*_vault)[index].getName());
-        _grid->SetCellValue(index, 1, (*_vault)[index].getUrl());
-    }
-
+    
     _grid->SetGridLineColour(wxColour(200, 200, 200));
     _grid->EnableGridLines(true);
 
@@ -35,6 +27,19 @@ CredentialsGrid::CredentialsGrid(wxFrame* parent, Vault* vault) {
     sizer->Add(addCredentialButton, 0, wxEXPAND, 30);
     sizer->Add(_grid, 1, wxCENTER, 5);
     _parent->SetSizer(sizer);
+}
+
+void CredentialsGrid::RefreshGrid() {
+    for (int i = _grid->GetNumberRows() - 1; i >= 0; i--) {
+        _grid->DeleteRows(i);
+    }
+    _grid->AppendRows(_vault->end() - _vault->begin());
+    for (auto it = _vault->begin(); it != _vault->end(); ++it) {
+        int index = it - _vault->begin();
+        _grid->SetCellValue(index, 0, (*_vault)[index].getName());
+        _grid->SetCellValue(index, 1, (*_vault)[index].getUrl());
+    }
+    _grid->ForceRefresh();
 }
 
 void CredentialsGrid::OnGridCellRightClick(wxGridEvent& event) {
@@ -59,34 +64,35 @@ void CredentialsGrid::OnMenuView(wxCommandEvent& event) {
     wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
 
     wxBoxSizer* nameSizer = new wxBoxSizer(wxHORIZONTAL);
-    wxTextCtrl* nameInput = new wxTextCtrl(dialog, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
+    wxTextCtrl* nameInput = new wxTextCtrl(dialog, wxID_ANY, cred.getName(), wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
     nameSizer->Add(new wxStaticText(dialog, wxID_ANY, "Credential name :"), 0, wxRIGHT, 8);
     nameSizer->Add(nameInput, 1);
     mainSizer->Add(nameSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 10);
 
     wxBoxSizer* loginSizer = new wxBoxSizer(wxHORIZONTAL);
-    wxTextCtrl* loginInput = new wxTextCtrl(dialog, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
+    wxTextCtrl* loginInput = new wxTextCtrl(dialog, wxID_ANY, cred.getLogin(), wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
     loginSizer->Add(new wxStaticText(dialog, wxID_ANY, "Credential login :"), 0, wxRIGHT, 8);
     loginSizer->Add(loginInput, 1);
     mainSizer->Add(loginSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 10);
 
     wxBoxSizer* passwordSizer = new wxBoxSizer(wxHORIZONTAL);
-    wxTextCtrl* passwordInput = new wxTextCtrl(dialog, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER | wxTE_PASSWORD);
+    wxTextCtrl* passwordInput = new wxTextCtrl(dialog, wxID_ANY, cred.getPassword(), wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
     passwordSizer->Add(new wxStaticText(dialog, wxID_ANY, "Credential password :"), 0, wxRIGHT, 8);
     passwordSizer->Add(passwordInput, 1);
     mainSizer->Add(passwordSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 10);
 
     wxBoxSizer* urlSizer = new wxBoxSizer(wxHORIZONTAL);
-    wxTextCtrl* urlInput = new wxTextCtrl(dialog, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
+    wxTextCtrl* urlInput = new wxTextCtrl(dialog, wxID_ANY, cred.getUrl(), wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
     urlSizer->Add(new wxStaticText(dialog, wxID_ANY, "Credential URL :"), 0, wxRIGHT, 8);
     urlSizer->Add(urlInput, 1);
     mainSizer->Add(urlSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 10);
 
     wxButton* ok = new wxButton(dialog, wxID_CANCEL, "OK");
-    mainSizer->Add(ok, 0, wxCenter, 1);
+    mainSizer->Add(ok, 0, wxCENTER, 1);
  
     dialog->SetDefaultItem(ok);
     dialog->SetSizer(mainSizer);
+    dialog->Show();
 }
 
 void CredentialsGrid::OnMenuEdit(wxCommandEvent& event) {
@@ -112,34 +118,19 @@ void CredentialsGrid::OnMenuDelete(wxCommandEvent& event) {
 
     if (deleteMenu->ShowModal() == wxID_OK) {
         _vault->deleteCredential(_clickedRow);
+        RefreshGrid();
     }
-
     deleteMenu->Destroy();
-
-    _grid->ClearGrid();
-    _grid->ForceRefresh();
-    _grid->AppendRows(_vault->end() - _vault->begin());
-    for (auto it = _vault->begin(); it != _vault->end(); ++it) {
-        int index = it - _vault->begin();
-        _grid->SetCellValue(index, 0, (*_vault)[index].getName());
-        _grid->SetCellValue(index, 1, (*_vault)[index].getUrl());
-    }
-    _grid->ForceRefresh();
 }
 
 void CredentialsGrid::OnAddCredential(wxCommandEvent& event) {
     AddCredentialPanel* panel = new AddCredentialPanel(_parent);
     if (panel->ShowModal() == wxID_OK) {
         _vault->addCredential(panel->GetCredential());
+        for (int i = _grid->GetNumberRows() - 1; i >= 0; i--) {
+            _grid->DeleteRows(i);
+        }
+        RefreshGrid();
     }
     panel->Destroy();
-    _grid->ClearGrid();
-    _grid->ForceRefresh();
-    _grid->AppendRows(_vault->end() - _vault->begin());
-    for (auto it = _vault->begin(); it != _vault->end(); ++it) {
-        int index = it - _vault->begin();
-        _grid->SetCellValue(index, 0, (*_vault)[index].getName());
-        _grid->SetCellValue(index, 1, (*_vault)[index].getUrl());
-    }
-    _grid->ForceRefresh();
 }

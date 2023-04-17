@@ -85,8 +85,7 @@ void Vault::updateCredential(size_t i) {
     "set name=?, login=?, pwd=?, confirmPwd=?, url=? where id=?", ec);
     #if DEBUG
     if(ec){
-        DEBUG_LOG(ec.what() << '\n');
-        return;
+        throw ec;
     }
     #endif
     stmt.bindParams(
@@ -97,7 +96,7 @@ void Vault::updateCredential(size_t i) {
         std::string_view{data.getUrl()}, c.getId());
     stmt(ec);
     if(ec != SQLite3::SQLite3Error::Done){
-        DEBUG_LOG(ec.what() << '\n');
+        throw ec;
     }
 
 }
@@ -128,9 +127,8 @@ void Vault::loadVault() {
     auto stmt = _db.createStatement("select id, name, login, pwd, url, confirmPwd from "
     "credentials where user_id=?", ec);
     #if DEBUG
-    if(ec && ec != SQLite3::SQLite3Error::Done){
-        DEBUG_LOG(ec.what() << '\n');
-        return;
+    if(ec){
+        throw ec;
     }
     #endif
     stmt.bindParam(1, _userId);
@@ -144,7 +142,7 @@ void Vault::loadVault() {
         _pos += c.size();
     }
     if(ec != SQLite3::SQLite3Error::Done){
-        DEBUG_LOG("Couldn't load vault: " << ec.what() << '\n');
+        throw ec;
     }
 }
 void Vault::addCredential(Credential&& c) {
@@ -154,8 +152,7 @@ void Vault::addCredential(Credential&& c) {
     "(?, ?, ?, ?, ?, ?)", ec);
     #if DEBUG
     if(ec){
-        DEBUG_LOG(ec.what() << '\n');
-        return;
+        throw ec;
     }
     #endif
     auto data = c.ciphered(_cipher);
@@ -175,6 +172,8 @@ void Vault::addCredential(Credential&& c) {
     // retrieve the id of the inserted credential
     stmt = _db.createStatement("select id from credentials order by id desc limit 1");
     auto res = stmt(ec); 
+    if(ec != SQLite3::SQLite3Error::Row)
+        throw ec;
     c.setId(res.at<int>(0));
     _contents.emplace_back(c);
 }
@@ -185,7 +184,7 @@ void Vault::deleteCredential(size_t index) {
     SQLite3::error_code ec;
     stmt(ec);
     if(ec != SQLite3::SQLite3Error::Done){
-        DEBUG_LOG(ec.what() << '\n');
+        throw ec;
     }
     // update the position in the keystream
     _pos -= it->size(); 
@@ -196,12 +195,14 @@ void Vault::deleteCredential(size_t index) {
 Vault::Vault(): _db(vaultPath().u8string())
 {
     _db.toggleForeignKeys(true);
+    auto ec = 
     _db.execute("create table if not exists users "
         "(id integer primary key, "
         "email varchar unique not null, "
         "authHash text(128) not null,"
         "iv blob not null default x'0000000000000000');");
-    _db.execute("create table if not exists credentials("
+    if(ec) throw ec;
+    ec = _db.execute("create table if not exists credentials("
         "id integer primary key,"
         "name blob not null,"
         "login blob,"
@@ -210,6 +211,7 @@ Vault::Vault(): _db(vaultPath().u8string())
         "confirmPwd int default 0,"
         "user_id integer not null,"
         "foreign key(user_id) references users(id));");
+    if(ec) throw ec;
     _cipher = Botan::StreamCipher::create("ChaCha(20)");
     #if DEBUG
     assert(_cipher);

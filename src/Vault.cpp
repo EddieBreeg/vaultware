@@ -68,10 +68,10 @@ void Vault::createUser(std::string_view login, std::string_view pwd){
     std::copy(_k, _k + sizeof(_k), it);
     _authHash = Botan::argon2_generate_pwhash(buf.data(), buf.size(), Botan::system_rng(),
         _argon2Params.p, _argon2Params.M, _argon2Params.t);
-    auto stmt = _db.createStatement("insert into users (email, pwd, authHash, iv) "
-    "values (?, ?, ?, ?)");
+    auto stmt = _db.createStatement("insert into users (email, authHash, iv) "
+    "values (?, ?, ?)");
     auto ec =
-    stmt.bindParams(login, pwd, std::string_view{_authHash}, SQLite3::Blob(iv, sizeof(iv)));
+    stmt.bindParams(login, std::string_view{_authHash}, SQLite3::Blob(iv, sizeof(iv)));
     if(ec){
         throw ec;
     }    

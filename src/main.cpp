@@ -45,6 +45,18 @@ public:
 
 		return true;
 	}
+	virtual int OnExit() override {
+		try
+		{
+			_vault.saveVault();
+			return 0;
+		}
+		catch(const SQLite3::error_code& err)
+		{
+			wxMessageBox(err.what(), wxMessageBoxCaptionStr, wxOK | wxICON_ERROR, _mainWin);
+			return 1;
+		}
+	}
 };
 
 wxIMPLEMENT_APP(Vaultware);

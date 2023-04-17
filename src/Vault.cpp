@@ -99,19 +99,25 @@ void Vault::updateCredential(size_t i) {
 
 }
 void Vault::saveVault(){
-    _cipher->seek(0);
-    SQLite3::error_code ec;
-    auto stmt = _db.createStatement(
-        "update credentials set name=?, login=?, pwd=?, url=?, confirmPwd=? where id=?;", ec
-    );
-    #if DEBUG
-    if(ec){
-        DEBUG_LOG(ec.what() << '\n');
-        return;
-    }
-    #endif
-    for(size_t i = 0; i < _contents.size(); ++i){
-        updateCredential(i);
+    _cipher->seek((_pos = 0));
+
+    for(const Credential& c: _contents){
+        auto enc = c.ciphered(_cipher);
+        _pos += enc.size();
+        auto stmt = _db.createStatement("update credentials set "
+        "name=?, login=?, pwd=?, url=?, confirmPwd=? where id=?");
+        stmt.bindParams(
+            std::string_view{enc.getName()},
+            std::string_view{enc.getLogin()},
+            std::string_view{enc.getPassword()},
+            std::string_view{enc.getUrl()},
+            int(enc.getConfirmPassword()),
+            enc.getId()
+        );
+        SQLite3::error_code ec;
+        stmt(ec);
+        if(ec != SQLite3::SQLite3Error::Done)
+            throw ec;
     }
 }
 void Vault::loadVault() {
@@ -175,7 +181,7 @@ void Vault::deleteCredential(size_t index) {
     stmt.bindParam(1, it->getId());
     SQLite3::error_code ec;
     stmt(ec);
-    if(ec){
+    if(ec != SQLite3::SQLite3Error::Done){
         DEBUG_LOG(ec.what() << '\n');
     }
     // update the position in the keystream

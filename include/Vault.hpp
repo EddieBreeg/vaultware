@@ -15,7 +15,6 @@ class Vault{
         std::unique_ptr<Botan::StreamCipher> _cipher;
         int _userId = 0;
         size_t _pos = 0; // the position in the key stream
-        void saveVault();
         void loadVault();
         void updateCredential(size_t index);
     public:
@@ -39,6 +38,7 @@ class Vault{
             iterator& operator+=(size_t n) { _ptr+=n; return *this; }
             iterator& operator-=(size_t n) { _ptr-=n; return *this; }
         };
+        void saveVault();
         Vault();
         ~Vault();
         iterator begin() { return iterator{_contents.data()}; }

@@ -46,9 +46,9 @@ bool Vault::login(const std::string& email, const std::string& password){
     // concatenate the password and email
     auto it = std::copy(password.begin(), password.end(), buf.begin());
     std::copy(email.begin(), email.end(), it);
-    auto pbkdf = Botan::PasswordHashFamily::create("PBKDF2(SHA-256)")->from_params(200000);
+    auto argon2 = Botan::PasswordHashFamily::create("Argon2id")->from_params(0x20000, 1, 1);
     uint8_t k[32];
-    pbkdf->derive_key(k, sizeof(k), (const char*)buf.data(), buf.size(), iv.data(), iv.size());
+    argon2->derive_key(k, sizeof(k), (const char*)buf.data(), buf.size(), iv.data(), iv.size());
     buf.resize(sizeof(k) + password.size());
     it = buf.begin() + password.size();
     std::copy(std::begin(k), std::end(k), it);
@@ -71,8 +71,8 @@ void Vault::updateCredential(size_t i) {
     if(i >= _contents.size()) return;
     // find the keystream position
     size_t pos = 0;
-    for(size_t i = 0; i < i; ++i)
-        pos += _contents[i].size();
+    for(size_t j = 0; j < i; ++j)
+        pos += _contents[j].size();
     _cipher->seek(pos);
     const auto& c = _contents[i]; 
     auto data = c.ciphered(_cipher);

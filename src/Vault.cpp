@@ -47,16 +47,13 @@ bool Vault::login(const std::string& email, const std::string& password){
     auto it = std::copy(password.begin(), password.end(), buf.begin());
     std::copy(email.begin(), email.end(), it);
     auto argon2 = Botan::PasswordHashFamily::create("Argon2id")->from_params(0x20000, 1, 1);
-    uint8_t k[32];
-    argon2->derive_key(k, sizeof(k), (const char*)buf.data(), buf.size(), iv.data(), iv.size());
-    buf.resize(sizeof(k) + password.size());
-    it = buf.begin() + password.size();
-    std::copy(std::begin(k), std::end(k), it);
+    argon2->derive_key(_k, sizeof(_k), (const char*)buf.data(), buf.size(), iv.data(), iv.size());
+
     _authHash = std::string(res.at<std::string_view>(2));
-    if(!checkPassword({(char*)buf.data(), buf.size()})) // wrong password
+    if(!checkPassword(password)) // wrong password
         return false;
     _userId = res.at<int>(0);
-    _cipher->set_key(k, sizeof(k));
+    _cipher->set_key(_k, sizeof(_k));
     _cipher->set_iv(iv.data(), iv.size());
 
     loadVault();
@@ -64,7 +61,10 @@ bool Vault::login(const std::string& email, const std::string& password){
     return true;
 }
 bool Vault::checkPassword(std::string_view pwd) const {
-    return Botan::argon2_check_pwhash(pwd.data(), pwd.length(), _authHash);
+    std::vector<uint8_t> buf(pwd.size() + sizeof(_k));
+    auto it = std::copy(pwd.begin(), pwd.end(), buf.begin());
+    std::copy(_k, _k+sizeof(_k), it);
+    return Botan::argon2_check_pwhash((char*)buf.data(), buf.size(), _authHash);
 }
 void Vault::updateCredential(size_t index, const Credential& c){
     _contents[index] = c; // update the credential

@@ -16,6 +16,7 @@ class Vault{
         int _userId = 0;
         size_t _pos = 0; // the position in the key stream
         std::string _authHash;
+        uint8_t _k[32];
         void loadVault();
         void updateCredential(size_t index);
     public:

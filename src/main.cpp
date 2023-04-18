@@ -25,8 +25,8 @@ public:
 			_mainWin->Close();
 			return false;
 		}
-login:	_loginPanel = new LoginPanel(_mainWin);
-		if (_loginPanel->ShowModal() == wxID_OK) {
+		_loginPanel = new LoginPanel(_mainWin, &_vault);
+login:	if (_loginPanel->ShowModal() == wxID_OK) {
 			std::string email(_loginPanel->GetLogin()), pwd(_loginPanel->GetPassword());
 			if (_vault.login(email, pwd)){
 				_grid->RefreshGrid();

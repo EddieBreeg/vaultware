@@ -28,7 +28,17 @@ public:
 		_loginPanel = new LoginPanel(_mainWin, &_vault);
 login:	if (_loginPanel->ShowModal() == wxID_OK) {
 			std::string email(_loginPanel->GetLogin()), pwd(_loginPanel->GetPassword());
-			if (_vault.login(email, pwd)){
+			bool loginSuccessful;
+			try
+			{
+				loginSuccessful = _vault.login(email, pwd);
+			}
+			catch(const SQLite3::error_code& e)
+			{
+				wxMessageBox(e.what(), wxMessageBoxCaptionStr, wxOK | wxICON_ERROR);
+				return false;
+			}
+			if (loginSuccessful){
 				_grid->RefreshGrid();
 				_mainWin->Show();
 				_loginPanel->Destroy();
@@ -43,12 +53,6 @@ login:	if (_loginPanel->ShowModal() == wxID_OK) {
 				errorPassword->ShowModal();
 				goto login;
 			}
-		}
-		if(!_vault.isOpen()){
-			wxMessageBox(_vault.getError().what(), wxMessageBoxCaptionStr, 
-				wxICON_ERROR);
-			_mainWin->Close();
-			return false;
 		}
 
 		return true;

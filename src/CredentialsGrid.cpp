@@ -198,8 +198,13 @@ void CredentialsGrid::OnMenuEdit(wxCommandEvent& event) {
         cred.setPassword(password);
         cred.setUrl(url);
         cred.setConfirmPassword(confirm);
-        _vault->deleteCredential(_clickedRow);
-        _vault->addCredential(std::move(cred));
+        try {
+            _vault->deleteCredential(_clickedRow);
+            _vault->addCredential(std::move(cred));
+        }
+        catch (const SQLite3::error_code& e){
+            wxMessageBox(e.what(), wxMessageBoxCaptionStr, wxICON_ERROR | wxOK);
+        }
     }
     editMenu->Destroy();
     RefreshGrid();
@@ -223,7 +228,14 @@ void CredentialsGrid::OnMenuDelete(wxCommandEvent& event) {
     deleteMenu->Layout();
 
     if (deleteMenu->ShowModal() == wxID_OK) {
-        _vault->deleteCredential(_clickedRow);
+        try
+        {
+            _vault->deleteCredential(_clickedRow);
+        }
+        catch(const SQLite3::error_code& e)
+        {
+            wxMessageBox(e.what(), wxMessageBoxCaptionStr, wxICON_ERROR | wxOK);
+        }
         RefreshGrid();
     }
     deleteMenu->Destroy();
@@ -232,7 +244,14 @@ void CredentialsGrid::OnMenuDelete(wxCommandEvent& event) {
 void CredentialsGrid::OnAddCredential(wxCommandEvent& event) {
     AddCredentialPanel* panel = new AddCredentialPanel(_parent);
     if (panel->ShowModal() == wxID_OK) {
-        _vault->addCredential(panel->GetCredential());
+        try
+        {
+            _vault->addCredential(panel->GetCredential());
+        }
+        catch(const SQLite3::error_code& e)
+        {
+            wxMessageBox(e.what(), wxMessageBoxCaptionStr, wxICON_ERROR | wxOK);
+        }
         RefreshGrid();
     }
     panel->Destroy();
